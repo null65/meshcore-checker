@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meshcore Network Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="container bg-white shadow-lg rounded-xl p-6 md:p-8 w-full max-w-3xl">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-blue-700 mb-6">
+            Meshcore Network Dashboard
+        </h1>
+
+        <div class="text-right text-sm text-gray-600 mb-6">
+            Last updated: <span id="last-updated" class="font-medium">Loading...</span>
+        </div>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b-2 pb-2 border-blue-200">
+            Repeaters
+        </h2>
+        <div id="repeaters-list" class="space-y-4 mb-8">
+            <div class="text-center text-gray-500 py-4">Loading repeater status...</div>
+        </div>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b-2 pb-2 border-blue-200">
+            Clients
+        </h2>
+        <div id="clients-list" class="space-y-4 mb-8">
+            <div class="text-center text-gray-500 py-4">Loading client status...</div>
+        </div>
+
+        <button id="refresh-button"
+            class="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 block mx-auto">
+            Refresh Status
+        </button>
+    </div>
+
+    <script>
+        // --- DEVICE DATA: EDIT THIS SECTION TO UPDATE STATUS ---
+        // You can easily change the 'status' to 'live' or 'offline' for each device.
+        // Add or remove devices as needed.
+        const devices = [
+            {
+                id: "heltec_v3_repeater",
+                name: "Heltec V3 Meshcore Repeater",
+                type: "repeater",
+                ip_address: "01 Repeater", // Placeholder IP address
+                status: "Offline" // Currently online
+            },
+            {
+                id: "heltec_v3_companion",
+                name: "Heltec V3 Companion Node",
+                type: "client",
+                ip_address: "01 Companion", // Placeholder IP address
+                status: "Offline" // Currently online
+            }
+        ];
+        // --- END OF DEVICE DATA SECTION ---
+
+        /**
+         * Renders the device status cards based on the 'devices' array.
+         */
+        function renderDeviceStatus() {
+            const repeatersList = document.getElementById('repeaters-list');
+            const clientsList = document.getElementById('clients-list');
+            const lastUpdatedSpan = document.getElementById('last-updated');
+
+            // Clear existing content
+            repeatersList.innerHTML = '';
+            clientsList.innerHTML = '';
+
+            // Update last updated timestamp
+            lastUpdatedSpan.textContent = new Date().toLocaleString();
+
+            // Filter devices into repeaters and clients
+            const repeaters = devices.filter(device => device.type === 'repeater');
+            const clients = devices.filter(device => device.type === 'client');
+
+            // Function to create a device card HTML element
+            const createDeviceCard = (device) => {
+                const statusClass = device.status === 'live' ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500';
+                const statusTextColor = device.status === 'live' ? 'text-green-700' : 'text-red-700';
+                const statusText = device.status === 'live' ? 'LIVE' : 'OFFLINE';
+
+                const card = document.createElement('div');
+                card.className = `flex items-center justify-between p-4 rounded-lg border-l-4 shadow-sm ${statusClass}`;
+                card.innerHTML = `
+                    <div class="flex-1">
+                        <p class="text-lg font-medium text-gray-900">${device.name}</p>
+                        <p class="text-sm text-gray-600">${device.ip_address}</p>
+                    </div>
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full ${statusTextColor} bg-white shadow-inner">
+                        ${statusText}
+                    </span>
+                `;
+                return card;
+            };
+
+            // Render repeaters
+            if (repeaters.length > 0) {
+                repeaters.forEach(device => {
+                    repeatersList.appendChild(createDeviceCard(device));
+                });
+            } else {
+                repeatersList.innerHTML = '<div class="text-center text-gray-500 py-4">No repeater data available.</div>';
+            }
+
+            // Render clients
+            if (clients.length > 0) {
+                clients.forEach(device => {
+                    clientsList.appendChild(createDeviceCard(device));
+                });
+            } else {
+                clientsList.innerHTML = '<div class="text-center text-gray-500 py-4">No client data available.</div>';
+            }
+        }
+
+        // Initial render when the page loads
+        document.addEventListener('DOMContentLoaded', renderDeviceStatus);
+
+        // Add event listener to the refresh button
+        document.getElementById('refresh-button').addEventListener('click', renderDeviceStatus);
+    </script>
+</body>
+</html>
